@@ -6,15 +6,17 @@ from game import Game
 import random
 
 BLACK = (0, 0, 0)
+WHITE = (255,255,255)
+font_name = pygame.font.match_font('arial')
 
-def event_keydown(event, ship, screen, bullets):
+def event_keydown(event, game ,ship, screen, bullets):
     if event.key == pygame.K_RIGHT:
         ship.moving_right = True
     # Move the ship to the left by activating 'direction' flag
     elif event.key == pygame.K_LEFT:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
-    	create_bullet(screen, ship, bullets)
+    	create_bullet(screen, game, ship, bullets)
 
 def event_keyup(event, ship):
     # Stop the ship by activating 'direction' flag
@@ -24,9 +26,13 @@ def event_keyup(event, ship):
     elif event.key == pygame.K_LEFT:
         ship.moving_left = False
 
-def create_bullet(screen, ship, bullets):
+def create_bullet(screen, game, ship, bullets):
 	# Tạo mới viên đạn và thêm vào group bullets 
-    bullet = Bullet(screen, ship)
+    bullet = Bullet(screen, ship, 0)
+    if game.score >= 30 and game.score <= 60:
+        bullet = Bullet(screen, ship, 1)
+    elif game.score > 60:
+        bullet = Bullet(screen, ship, 2)
     bullets.add(bullet)
 
 def update_and_delete_bullet(game, bullets):
@@ -68,17 +74,16 @@ def check_coll_alien_ship(ship, aliens):
 	return False
 
 # Phần hiển thị điểm 
-font_name = pygame.font.match_font('arial')
 def draw_score(screen, text, size, x, y):
 	font = pygame.font.Font(font_name, size)
-	text_surface = font.render(text, True, BLACK)
+	text_surface = font.render(text, True, WHITE)
 	text_rect = text_surface.get_rect()
 	text_rect.midtop = (x, y)
 	screen.blit(text_surface, text_rect)
 
 # Hiển thị màn hình kết thúc
 def draw_game_over(screen):
-	draw_score(screen, "Ban da thua!", 20, screen.get_width() / 2, screen.get_height() / 2)
-	draw_score(screen, "Nhan phim bat ki de choi lai ...", 20, screen.get_width()/2, screen.get_height()/2 + 40)
+	draw_score(screen, "Ban da thua!", 25, screen.get_width() / 2, screen.get_height() / 2)
+	draw_score(screen, "Nhan phim bat ki de choi lai ...", 25, screen.get_width()/2, screen.get_height()/2 + 40)
 	pygame.display.flip()
 

@@ -1,11 +1,13 @@
 import pygame
 from pygame.sprite import Sprite
 
+bullet_list = ['images/bullet1.png','images/bullet2.png','images/bullet3.png']
+
 class Bullet(Sprite):
-    def __init__(self, screen, ship):
+    def __init__(self, screen, ship, quantity):
         super(Bullet, self).__init__()
         self.screen = screen
-        self.image = pygame.image.load('images/bullet.png')
+        self.image = pygame.image.load(bullet_list[quantity])
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
         #self.rect = pygame.Rect(0, 0, 5, 30)

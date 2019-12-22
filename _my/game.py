@@ -18,7 +18,7 @@ class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        self.image = pygame.image.load('images/backgroud.jpeg')
+        self.image = pygame.image.load('images/background.png')
         self.rect = self.image.get_rect()
         # Tạo con tàu
         self.ship = Ship(self.screen)
@@ -59,6 +59,7 @@ class Game:
                             sys.exit()
                         elif event.type == pygame.KEYDOWN:
                             self.score = 0
+                            game_event.create_alien(self.screen, self.aliens, 1)
                             stop = False
 
             self.update_game()
@@ -70,7 +71,7 @@ class Game:
                 sys.exit()
             # Check key pressed
             elif event.type == pygame.KEYDOWN:
-                game_event.event_keydown(event, self.ship, self.screen , self.bullets)
+                game_event.event_keydown(event, self, self.ship, self.screen , self.bullets)
             # Check key released
             elif event.type == pygame.KEYUP:
                 game_event.event_keyup(event, self.ship)
@@ -85,7 +86,7 @@ class Game:
         # Draw list of aliens
         game_event.draw_aline(self.aliens)
         # Hien thi diem 
-        game_event.draw_score(self.screen, 'Score : {}'.format(str(self.score)), 20, WIDTH/2, 10)
+        game_event.draw_score(self.screen, 'Score : {}'.format(str(self.score)), 25, WIDTH/2, 10)
         # Make the most recently drawn screen visible.
         pygame.display.flip()
 
