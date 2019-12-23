@@ -4,10 +4,26 @@ from bullet import Bullet
 from alien import Alien
 from game import Game
 import random
+from os import path
+import sys
+from pygame.locals import *
+
 
 BLACK = (0, 0, 0)
 WHITE = (255,255,255)
+GREEN = (0,255,0)
+RED = (255,0,0)
+
+music_dir = path.join(path.dirname(__file__), 'music')
 font_name = pygame.font.match_font('arial')
+#Music
+pygame.mixer.init()
+pygame.mixer.music.set_volume(0.5)
+shoot_sound = pygame.mixer.Sound(path.join(music_dir, 'pew.wav'))
+coll_sound = []
+for s in ['expl1.wav', 'expl2.wav']:
+	coll_sound.append(pygame.mixer.Sound(path.join(music_dir, s)))
+
 
 def event_keydown(event, game ,ship, screen, bullets):
     if event.key == pygame.K_RIGHT:
@@ -34,6 +50,7 @@ def create_bullet(screen, game, ship, bullets):
     elif game.score > 60:
         bullet = Bullet(screen, ship, 2)
     bullets.add(bullet)
+    shoot_sound.play()
 
 def update_and_delete_bullet(game, bullets):
 	bullets.update(game)
@@ -65,13 +82,21 @@ def check_coll_bullet_alien(game, aliens, bullets, screen):
 		game.score += 1
 		# Mỗi lần bắn trúng thì tạo thêm 1 alien
 		create_alien(screen, aliens, 1)
+		# Nhạc
+		random.choice(coll_sound).play()
 
 # Kiểm tra va chạm giữa alien và ship
-def check_coll_alien_ship(ship, aliens):
+def check_coll_alien_ship(ship, aliens, screen):
 	colls = pygame.sprite.spritecollide(ship, aliens, True)
-	if colls:
-		return True
-	return False
+	for coll in colls:
+		ship.shield -= 20
+		create_alien(screen, aliens, 1)
+		print(ship.shield)
+		if ship.shield <= 0:
+			return True
+		else: 
+			return False
+	
 
 # Phần hiển thị điểm 
 def draw_score(screen, text, size, x, y):
@@ -86,4 +111,18 @@ def draw_game_over(screen):
 	draw_score(screen, "Ban da thua!", 25, screen.get_width() / 2, screen.get_height() / 2)
 	draw_score(screen, "Nhan phim bat ki de choi lai ...", 25, screen.get_width()/2, screen.get_height()/2 + 40)
 	pygame.display.flip()
+
+# Hiển thị % mạng
+def draw_shield(x, y, screen ,shield):
+	if shield < 0:
+		shield = 0
+	fill = (shield / 100) * 100
+	outline_rect = pygame.Rect(x, y, 100, 10)
+	fill_rect = pygame.Rect(x, y, fill, 10)
+	if shield > 40:
+		pygame.draw.rect(screen, GREEN, fill_rect)
+	else:
+		pygame.draw.rect(screen, RED, fill_rect)
+	pygame.draw.rect(screen, WHITE, outline_rect, 2) 
+
 

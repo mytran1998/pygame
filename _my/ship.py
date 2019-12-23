@@ -18,6 +18,8 @@ class Ship:
         self.moving_right = False
         self.moving_left = False
 
+        self.shield = 100
+
     def blitme(self):
         """ Draw the ship at its current location """
         self.screen.blit(self.image, self.rect)
