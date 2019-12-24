@@ -2,6 +2,7 @@ import pygame
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from explosions import Explosion
 from game import Game
 import random
 from os import path
@@ -74,24 +75,35 @@ def draw_aline(aliens):
 	for alien in aliens:
 		alien.blitme()
 
+def draw_expl(explosions):
+	for expl in explosions:
+		expl.blitme()
+		explosions.remove(expl)
+
 # Kiểm tra va chạm giữa alien và bullet
-def check_coll_bullet_alien(game, aliens, bullets, screen):
+def check_coll_bullet_alien(game, aliens, bullets, screen, explosions):
 	collisions = pygame.sprite.groupcollide(aliens, bullets, True, True)
 	for collision in collisions:
 		# Tăng điểm
 		game.score += 1
 		# Mỗi lần bắn trúng thì tạo thêm 1 alien
 		create_alien(screen, aliens, 1)
+		# Hiệu ứng nổ
+		expl = Explosion(collision.rect.center, screen, random.randint(0,2))
+		explosions.add(expl)
 		# Nhạc
 		random.choice(coll_sound).play()
 
+
 # Kiểm tra va chạm giữa alien và ship
-def check_coll_alien_ship(ship, aliens, screen):
+def check_coll_alien_ship(ship, aliens, screen, explosions):
 	colls = pygame.sprite.spritecollide(ship, aliens, True)
 	for coll in colls:
 		ship.shield -= 20
 		create_alien(screen, aliens, 1)
-		print(ship.shield)
+		expl = Explosion(coll.rect.center, screen, 0)
+		explosions.add(expl)
+		coll_sound[1].play()
 		if ship.shield <= 0:
 			return True
 		else: 

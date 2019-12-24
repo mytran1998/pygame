@@ -1,6 +1,6 @@
 import pygame
 import random
-from  pygame.sprite import Sprite
+from pygame.sprite import Sprite
 
 alien_list = ['images/big1.png', 'images/big2.png', 'images/med3.png',
 			 'images/small1.png', 'images/small2.png', 'images/med1.png']

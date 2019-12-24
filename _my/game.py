@@ -4,6 +4,7 @@ from os import path
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from explosions import Explosion
 from pygame.sprite import Sprite
 import game_event
 import random
@@ -40,6 +41,8 @@ class Game:
         self.bullets = pygame.sprite.Group()
         # Tạo nhóm để lưu trữ alien
         self.aliens = pygame.sprite.Group()
+        # Hiệu ứng nổ
+        self.explosions = pygame.sprite.Group()
         # Tính điểm
         self.score = 0
     def run_game(self):
@@ -58,11 +61,14 @@ class Game:
             # Update every alien on the screen 
             self.aliens.update()
 
-            # Kiem tra neu Aline cham vao Bullet
-            game_event.check_coll_bullet_alien(self, self.aliens, self.bullets, self.screen)
+            # Update Expl
+            self.explosions.update()
 
+            # Kiem tra neu Aline cham vao Bullet
+            game_event.check_coll_bullet_alien(self, self.aliens, self.bullets, self.screen, self.explosions)
+            
             # Kiem tra neu Alien va cham ship
-            check = game_event.check_coll_alien_ship( self.ship, self.aliens, self.screen)
+            check = game_event.check_coll_alien_ship( self.ship, self.aliens, self.screen, self.explosions)
             if check:
                 game_event.draw_game_over(self.screen)
                 pygame.mixer.music.stop()
@@ -98,6 +104,8 @@ class Game:
         self.screen.blit(self.image, self.rect)
         # Draw the ship
         self.ship.blitme()
+        # Draw list of Explosions
+        game_event.draw_expl(self.explosions)
         # Draw list of bullets
         game_event.draw_bullet(self.bullets)
         # Draw list of aliens
