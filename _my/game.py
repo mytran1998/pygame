@@ -13,6 +13,7 @@ from pygame.locals import *
 WIDTH = 500
 HEIGHT = 600
 FPS = 60
+LIVES = 3
 BACKGROUND_COLOR = (230, 230, 230)
 clock = pygame.time.Clock()
 # Set vị trí bắt đầu
@@ -43,6 +44,8 @@ class Game:
         self.aliens = pygame.sprite.Group()
         # Hiệu ứng nổ
         self.explosions = pygame.sprite.Group()
+        # Power
+        self.powers = pygame.sprite.Group()
         # Tính điểm
         self.score = 0
     def run_game(self):
@@ -64,27 +67,36 @@ class Game:
             # Update Expl
             self.explosions.update()
 
+            # Update Power
+            self.powers.update()
+
             # Kiem tra neu Aline cham vao Bullet
-            game_event.check_coll_bullet_alien(self, self.aliens, self.bullets, self.screen, self.explosions)
-            
+            game_event.check_coll_bullet_alien(self, self.aliens, self.bullets, 
+                self.screen, self.explosions, self.powers)
+            # Kiem tra neu Ship cham vao Power
+            game_event.check_coll_ship_power(self.ship, self.powers)
+
             # Kiem tra neu Alien va cham ship
             check = game_event.check_coll_alien_ship( self.ship, self.aliens, self.screen, self.explosions)
             if check:
-                game_event.draw_game_over(self.screen)
-                pygame.mixer.music.stop()
                 stop = True
+                game_event.draw_game_over(self.screen, self)
+                pygame.display.flip()
+                pygame.mixer.music.stop()
                 while stop:
                     clock.tick(FPS)
                     for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            sys.exit()
-                        elif event.type == pygame.KEYDOWN:
-                            self.score = 0
-                            self.ship.shield = 100
-                            pygame.mixer.music.play()
-                            game_event.create_alien(self.screen, self.aliens, 1)
-                            stop = False
-
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == K_ESCAPE:
+                                sys.exit()
+                            elif event.key == K_SPACE:
+                                stop = False
+                            
+                self.score = 0
+                self.ship.shield = 100
+                self.ship.lives = LIVES
+                pygame.mixer.music.play()
+                game_event.create_alien(self.screen, self.aliens, 1)
             self.update_game()
 
     def check_event(self):
@@ -110,10 +122,14 @@ class Game:
         game_event.draw_bullet(self.bullets)
         # Draw list of aliens
         game_event.draw_aline(self.aliens)
+        # Draw list of powers
+        game_event.draw_power(self.powers)
         # Hien thi diem 
         game_event.draw_score(self.screen, 'Score : {}'.format(str(self.score)), 25, WIDTH/2, 10)
         #Hien thi % mau
         game_event.draw_shield(5, 5, self.screen, self.ship.shield)
+        # Số mạng
+        game_event.draw_ship_mini(self.screen, WIDTH - 100, 10, self.ship.lives)
         # Make the most recently drawn screen visible.
         pygame.display.flip()
 

@@ -4,6 +4,8 @@ from bullet import Bullet
 from alien import Alien
 from explosions import Explosion
 from game import Game
+from ship_mini import ShipMini
+from power import Power
 import random
 from os import path
 import sys
@@ -25,6 +27,8 @@ coll_sound = []
 for s in ['expl1.wav', 'expl2.wav']:
 	coll_sound.append(pygame.mixer.Sound(path.join(music_dir, s)))
 
+BULLET_1 = 30
+BULLET_2 = 60 
 
 def event_keydown(event, game ,ship, screen, bullets):
     if event.key == pygame.K_RIGHT:
@@ -46,9 +50,9 @@ def event_keyup(event, ship):
 def create_bullet(screen, game, ship, bullets):
 	# Tạo mới viên đạn và thêm vào group bullets 
     bullet = Bullet(screen, ship, 0)
-    if game.score >= 30 and game.score <= 60:
+    if game.score >= BULLET_1 and game.score <= BULLET_2:
         bullet = Bullet(screen, ship, 1)
-    elif game.score > 60:
+    elif game.score > BULLET_2:
         bullet = Bullet(screen, ship, 2)
     bullets.add(bullet)
     shoot_sound.play()
@@ -80,8 +84,12 @@ def draw_expl(explosions):
 		expl.blitme()
 		explosions.remove(expl)
 
+def draw_power(powers):
+	for pow in powers:
+		pow.blitme()
+
 # Kiểm tra va chạm giữa alien và bullet
-def check_coll_bullet_alien(game, aliens, bullets, screen, explosions):
+def check_coll_bullet_alien(game, aliens, bullets, screen, explosions, powers):
 	collisions = pygame.sprite.groupcollide(aliens, bullets, True, True)
 	for collision in collisions:
 		# Tăng điểm
@@ -91,9 +99,13 @@ def check_coll_bullet_alien(game, aliens, bullets, screen, explosions):
 		# Hiệu ứng nổ
 		expl = Explosion(collision.rect.center, screen, random.randint(0,2))
 		explosions.add(expl)
+		# Power
+		if random.random() > 0.9:
+			pow = Power(collision.rect.center, screen)
+			powers.add(pow)
 		# Nhạc
-		random.choice(coll_sound).play()
-
+		else:
+			random.choice(coll_sound).play()
 
 # Kiểm tra va chạm giữa alien và ship
 def check_coll_alien_ship(ship, aliens, screen, explosions):
@@ -105,10 +117,24 @@ def check_coll_alien_ship(ship, aliens, screen, explosions):
 		explosions.add(expl)
 		coll_sound[1].play()
 		if ship.shield <= 0:
-			return True
-		else: 
-			return False
+			ship.hide()
+			ship.lives -= 1
+			ship.shield = 100
+			
+	if ship.lives == 0:
+		return True
+	else:
+		return False
 	
+# Kiểm tra va chạm giữa ship và power
+def check_coll_ship_power(ship, powers):
+	colls = pygame.sprite.spritecollide(ship, powers, True)
+	for coll in colls:
+		# Thêm 20 máu
+		ship.shield += 20 
+		if ship.shield >= 100:
+			ship.shield = 100
+
 
 # Phần hiển thị điểm 
 def draw_score(screen, text, size, x, y):
@@ -119,9 +145,11 @@ def draw_score(screen, text, size, x, y):
 	screen.blit(text_surface, text_rect)
 
 # Hiển thị màn hình kết thúc
-def draw_game_over(screen):
-	draw_score(screen, "Ban da thua!", 25, screen.get_width() / 2, screen.get_height() / 2)
-	draw_score(screen, "Nhan phim bat ki de choi lai ...", 25, screen.get_width()/2, screen.get_height()/2 + 40)
+def draw_game_over(screen, game):
+	draw_score(screen, "BAN DA THUA", 65, screen.get_width() / 2, screen.get_height() / 4)
+	draw_score(screen, "ĐIEM CUA BAN LA : {}".format(str(game.score)), 25, screen.get_width() / 2, screen.get_height() / 2)
+	draw_score(screen, "NHAN PHIM SPACE DE CHOI LAI!!!", 25, screen.get_width()/2, screen.get_height()/2 + 100)
+	draw_score(screen, "NHAN PHIM ESC DE THOAT TRO CHOI!!!", 25, screen.get_width()/2, screen.get_height()/2 + 140)
 	pygame.display.flip()
 
 # Hiển thị % mạng
@@ -138,3 +166,7 @@ def draw_shield(x, y, screen ,shield):
 	pygame.draw.rect(screen, WHITE, outline_rect, 2) 
 
 
+def draw_ship_mini(screen, x, y, lives):
+	for i in range(lives):
+		ship_mini = ShipMini(screen, x, y, i)
+		ship_mini.blitme() 
