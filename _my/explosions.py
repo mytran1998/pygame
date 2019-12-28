@@ -3,9 +3,9 @@ from os import path
 from pygame.sprite import Sprite
 
 BLACK = (0, 0, 0)
-bum_img = ['images/bum02.png','images/bum03.png','images/bum04.png']
+bum_img = ['images/bum01.png','images/bum02.png','images/bum03.png']
 
-
+# Hiệu ứng khi va chạm
 class Explosion(Sprite):
 	def __init__(self, center, screen, quantity):
 		pygame.sprite.Sprite.__init__(self)

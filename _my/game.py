@@ -14,9 +14,10 @@ WIDTH = 500
 HEIGHT = 600
 FPS = 60
 LIVES = 3
-BACKGROUND_COLOR = (230, 230, 230)
+WHITE = (255,255,255)
+YELLOW = (255,255,0)
 clock = pygame.time.Clock()
-# Set vị trí bắt đầu
+# Set vị trí bắt đầu khi khởi động
 pos_x = 1360 / 2 - WIDTH / 2
 pos_y = 760 - HEIGHT
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (pos_x,pos_y)
@@ -32,7 +33,8 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
-        pygame.display.set_caption(u'Ban May Bay')
+        pygame.display.set_caption(u'SHOT PLANE')
+        pygame.display.set_icon(pygame.image.load("images/icon.png"))
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.image = pygame.image.load('images/background.png')
         self.rect = self.image.get_rect()
@@ -75,7 +77,7 @@ class Game:
                 self.screen, self.explosions, self.powers)
             # Kiem tra neu Ship cham vao Power
             game_event.check_coll_ship_power(self.ship, self.powers)
-
+            
             # Kiem tra neu Alien va cham ship
             check = game_event.check_coll_alien_ship( self.ship, self.aliens, self.screen, self.explosions)
             if check:
@@ -125,7 +127,7 @@ class Game:
         # Draw list of powers
         game_event.draw_power(self.powers)
         # Hien thi diem 
-        game_event.draw_score(self.screen, 'Score : {}'.format(str(self.score)), 25, WIDTH/2, 10)
+        game_event.draw_score(self.screen, 'SCORE : {}'.format(str(self.score)), 25, WIDTH/2, 10, YELLOW)
         #Hien thi % mau
         game_event.draw_shield(5, 5, self.screen, self.ship.shield)
         # Số mạng
@@ -137,4 +139,14 @@ class Game:
 if __name__ == '__main__':
     # Make a game instance, and run the game.
     game = Game()
-    game.run_game()
+    game_event.draw_menu_start(game.screen, game)
+    done = False
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                done = True
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                game.run_game()
+    
